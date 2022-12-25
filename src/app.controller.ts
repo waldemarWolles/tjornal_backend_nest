@@ -9,10 +9,4 @@ export class AppController {
   getHello(): string {
     return this.appService.getHello();
   }
-
-  @Get('/users/:id')
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
-  getUser(@Param('id') id: string): string {
-    return this.appService.getUser(+id);
-  }
 }

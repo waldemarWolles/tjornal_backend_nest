@@ -10,7 +10,6 @@ import { PostEntity } from './post/entities/post.entity';
 import { CommentEntity } from './comment/entities/comment.entity';
 import { CommentModule } from './comment/comment.module';
 import { AuthModule } from './auth/auth.module';
-import { UserService } from './user/user.service';
 
 @Module({
   imports: [

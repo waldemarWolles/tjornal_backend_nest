@@ -4,6 +4,9 @@ export class CreateUserDto {
   fullName: string;
 
   @IsEmail(undefined, { message: 'Wrong Email' })
+  // @UniqueOnDatabase(UserEntity, {
+  //   message: 'This email already exists',
+  // })
   email: string;
 
   @Length(6, 32, {
