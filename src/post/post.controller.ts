@@ -26,7 +26,7 @@ export class PostController {
   create(@User() user: UserEntity, @Body() createPostDto: CreatePostDto) {
     console.log(user);
 
-    // return this.postService.create(createPostDto);
+    return this.postService.create(createPostDto);
   }
 
   @UseGuards(JwtAuthGuard)
