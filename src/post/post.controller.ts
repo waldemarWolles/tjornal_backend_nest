@@ -35,7 +35,7 @@ export class PostController {
     return this.postService.update(+id, updatePostDto);
   }
 
-  @UseGuards(JwtAuthGuard)
+  // @UseGuards(JwtAuthGuard)
   @Delete(':id')
   remove(@Param('id') id: string) {
     return this.postService.remove(+id);

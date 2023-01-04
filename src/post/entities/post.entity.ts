@@ -4,6 +4,7 @@ import {
   PrimaryGeneratedColumn,
   CreateDateColumn,
 } from 'typeorm';
+import { OutputBlockData } from '../dto/create-post.dto';
 
 @Entity()
 export class PostEntity {
@@ -13,8 +14,11 @@ export class PostEntity {
   @Column()
   title: string;
 
+  @Column({ type: 'jsonb' })
+  body: OutputBlockData[];
+
   @Column()
-  body: string;
+  description: string;
 
   @Column({ default: 0 })
   views: number;

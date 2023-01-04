@@ -15,10 +15,14 @@ export class PostService {
   ) {}
 
   create(dto: CreatePostDto) {
+    const firstParagraph = dto.body.find((obj) => obj.type === 'paragraph')
+      ?.data?.text;
+
     return this.repository.save({
       title: dto.title,
       body: dto.body,
       tags: dto.tags,
+      description: firstParagraph || '',
     });
   }
 
