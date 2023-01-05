@@ -1,5 +1,8 @@
 import { Injectable } from '@nestjs/common';
-import { NotFoundException } from '@nestjs/common/exceptions';
+import {
+  ForbiddenException,
+  NotFoundException,
+} from '@nestjs/common/exceptions';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { CreatePostDto } from './dto/create-post.dto';
@@ -13,18 +16,6 @@ export class PostService {
     @InjectRepository(PostEntity)
     private repository: Repository<PostEntity>,
   ) {}
-
-  create(dto: CreatePostDto) {
-    const firstParagraph = dto.body.find((obj) => obj.type === 'paragraph')
-      ?.data?.text;
-
-    return this.repository.save({
-      title: dto.title,
-      body: dto.body,
-      tags: dto.tags,
-      description: firstParagraph || '',
-    });
-  }
 
   findAll() {
     return this.repository.find({
@@ -50,6 +41,8 @@ export class PostService {
 
   async search(dto: SearchPostDto) {
     const qb = this.repository.createQueryBuilder('p');
+
+    qb.leftJoinAndSelect('post_entity.user', 'user');
 
     qb.limit(dto.limit || 0);
     qb.take(dto.take || 10);
@@ -89,6 +82,7 @@ export class PostService {
     await this.repository
       .createQueryBuilder('post_entity')
       .whereInIds(id)
+      .leftJoinAndSelect('post_entity.user', 'user')
       .update()
       .set({ views: () => 'views + 1' })
       .execute();
@@ -102,21 +96,47 @@ export class PostService {
     return find;
   }
 
-  async update(id: number, dto: UpdatePostDto) {
+  create(dto: CreatePostDto, userId: number) {
+    const firstParagraph = dto.body.find((obj) => obj.type === 'paragraph')
+      ?.data?.text;
+
+    return this.repository.save({
+      title: dto.title,
+      body: dto.body,
+      tags: dto.tags,
+      user: { id: userId },
+      description: firstParagraph || '',
+    });
+  }
+
+  async update(id: number, dto: UpdatePostDto, userId: number) {
     const find = await this.repository.findOneBy({ id });
 
     if (!find) {
       throw new NotFoundException('Post was not found');
     }
 
-    return this.repository.update(id, dto);
+    const firstParagraph = dto.body.find((obj) => obj.type === 'paragraph')
+      ?.data?.text;
+
+    return this.repository.update(id, {
+      title: dto.title,
+      body: dto.body,
+      tags: dto.tags,
+      user: { id: userId },
+      description: firstParagraph || '',
+    });
   }
 
-  async remove(id: number) {
+  async remove(id: number, userId: number) {
     const find = await this.repository.findOneBy({ id });
 
     if (!find) {
       throw new NotFoundException('Post was not found');
+    }
+
+    if (find.user.id !== userId) {
+      throw new ForbiddenException('Do not have access');
     }
 
     return this.repository.delete(id);
