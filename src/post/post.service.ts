@@ -42,8 +42,6 @@ export class PostService {
   async search(dto: SearchPostDto) {
     const qb = this.repository.createQueryBuilder('p');
 
-    qb.leftJoinAndSelect('post_entity.user', 'user');
-
     qb.limit(dto.limit || 0);
     qb.take(dto.take || 10);
 
@@ -82,7 +80,6 @@ export class PostService {
     await this.repository
       .createQueryBuilder('post_entity')
       .whereInIds(id)
-      .leftJoinAndSelect('post_entity.user', 'user')
       .update()
       .set({ views: () => 'views + 1' })
       .execute();
