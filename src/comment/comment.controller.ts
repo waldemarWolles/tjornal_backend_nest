@@ -1,5 +1,4 @@
 import { JwtAuthGuard } from './../auth/guards/jwt-auth.guard';
-import { UserEntity } from './../user/entities/user.entity';
 import { User } from './../decorators/user.decorator';
 import {
   Controller,
@@ -10,6 +9,7 @@ import {
   Param,
   Delete,
   UseGuards,
+  Query,
 } from '@nestjs/common';
 import { CommentService } from './comment.service';
 import { CreateCommentDto } from './dto/create-comment.dto';
@@ -26,8 +26,8 @@ export class CommentController {
   }
 
   @Get()
-  findAll() {
-    return this.commentService.findAll();
+  findAll(@Query() query: { postId: string }) {
+    return this.commentService.findAll(+query.postId);
   }
 
   @Get(':id')

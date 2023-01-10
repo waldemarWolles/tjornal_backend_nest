@@ -21,11 +21,14 @@ export class CommentService {
     });
   }
 
-  async findAll() {
-    const arr = await this.repository
-      .createQueryBuilder('c')
-      .leftJoinAndSelect('c.user', 'user')
-      .getMany();
+  async findAll(postId: number) {
+    const qb = this.repository.createQueryBuilder('c');
+
+    if (postId) {
+      qb.where('c.postId = :postId', { postId });
+    }
+
+    const arr = await qb.leftJoinAndSelect('c.user', 'user').getMany();
 
     return arr.map((obj) => {
       return {
