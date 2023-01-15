@@ -6,6 +6,7 @@ import { Repository } from 'typeorm';
 import { CreateUserDto } from './dto/create-user.dto';
 import { UpdateUserDto } from './dto/update-user.dto';
 import { AuthUserDto } from './dto/auth-user.dto';
+import { CommentEntity } from './../comment/entities/comment.entity';
 
 @Injectable()
 export class UserService {
@@ -18,8 +19,22 @@ export class UserService {
     return this.repository.save(dto);
   }
 
-  findAll() {
-    return this.repository.find();
+  async findAll() {
+    const array = await this.repository
+      .createQueryBuilder('u')
+      .leftJoinAndMapMany(
+        'u.comments',
+        CommentEntity,
+        'comment',
+        'comment.userId = u.id',
+      )
+      .loadRelationCountAndMap('b.commentsCount', 'u.comments', 'comments')
+      .getMany();
+
+    return array.map((obj) => {
+      delete obj.comments;
+      return obj;
+    });
   }
 
   getUser(id: number) {
